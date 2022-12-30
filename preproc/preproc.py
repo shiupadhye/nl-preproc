@@ -6,7 +6,12 @@ Script containing functions for computing commonly used NLP measures
 
 import pandas as pd
 import numpy as np
+import pronouncing
 import panphon.distance
+import torchtext
+from torchtext.vocab import FastText
+from torchtext.vocab import GloVe
+
 
 """
 Get SUBTLEXus word frequencies
@@ -23,14 +28,14 @@ def get_subtlexus_freqs(w):
         return 0
 
 """
-Compute phonological distance b/w words x and y
+Computes phonological distance b/w words x and y
 """
 def phonDist(x,y):
     dst = panphon.distance.Distance()
     return dst.feature_edit_distance(x,y)
 
 """
-Compute phonological similarity b/w words x and y
+Computes phonological similarity b/w words x and y
 """
 def phonSim(x,y):
     dst = panphon.distance.Distance()
@@ -39,3 +44,33 @@ def phonSim(x,y):
     num_feat2 = dst.feature_edit_distance(y,"")
     phonSim = 1 - phonDist/max(num_feat1,num_feat2)
     return phonSim
+
+
+"""
+Returns the syllabic breakdown of a given word
+"""
+def syllabify(word):
+    return pronouncing.phones_for_word(word)
+
+
+"""
+Returns word vector from embeddings matrix
+"""
+def get_vector(embeddings, word):
+    clean_word = re.sub(r"[-|']","",word)
+    if clean_word in embeddings.stoi:
+        return embeddings.vectors[embeddings.stoi[clean_word]]
+    else:
+        return embeddings.vectors['unk']
+
+"""
+Computes the semantic distance between two words
+"""
+def semDistGloVe(w1,w2):
+    glove = torchtext.vocab.GloVe(name = '6B', dim = 300)
+    x = get_vector(glove,w1).unsqueeze(0)
+    y = get_vector(glove,w2).unsqueeze(0)
+    semDist = 1-torch.cosine_similarity(x,y)
+    return semDist
+
+
