@@ -5,7 +5,7 @@ from transformers import BertTokenizer, BertModel
 tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 model = BertModel.from_pretrained("bert-base-uncased")
 
-def BERT_sentence_embeddings(text,nLayer):
+def BERT_sentence_embedding(text,nLayer):
   # prepare input
   inputs = tokenizer(text, return_tensors="pt")  
   with torch.no_grad():
@@ -19,7 +19,7 @@ def BERT_sentence_embeddings(text,nLayer):
   sentence_embedding = torch.mean(token_vecs, dim=0)
   return sentence_embedding
 
-def BERT_word_embeddings(text,word,layers):
+def BERT_word_embedding(text,word,layers):
   inputs = tokenizer(text, return_tensors="pt")
   input_ids = inputs["input_ids"].flatten().tolist()
   word_token = tokenizer.encode(word)[1:-1]
