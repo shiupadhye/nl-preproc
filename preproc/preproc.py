@@ -54,22 +54,12 @@ def syllabify(word):
 
 
 """
-Returns word vector from embeddings matrix
-"""
-def get_vector(embeddings, word):
-    clean_word = re.sub(r"[-|']","",word)
-    if clean_word in embeddings.stoi:
-        return embeddings.vectors[embeddings.stoi[clean_word]]
-    else:
-        return embeddings.vectors['unk']
-
-"""
 Computes the semantic distance between two words
 """
 def semDistGloVe(w1,w2):
     glove = torchtext.vocab.GloVe(name = '6B', dim = 300)
-    x = get_vector(glove,w1).unsqueeze(0)
-    y = get_vector(glove,w2).unsqueeze(0)
+    x = glove[re.sub(r"['|-]","",w1)].unsqueeze(0)
+    y = glove[re.sub(r"['|-]","",w2)].unsqueeze(0)
     semDist = 1-torch.cosine_similarity(x,y)
     return semDist
 
